@@ -20,7 +20,7 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useMemo } = React;
+const { useState, useMemo, useEffect, useRef } = React;
 
 const vocabData = [
   // ===== N5 동사 =====
@@ -494,23 +494,32 @@ function FlashCard({ word, onNext, total, current }) {
 }
 
 function App() {
-  const [level, setLevel] = useState("전체");
+  const [levels, setLevels] = useState(new Set());
   const [type, setType] = useState("전체");
   const [search, setSearch] = useState("");
   const [mode, setMode] = useState("list");
   const [flashIdx, setFlashIdx] = useState(0);
   const [flashWords, setFlashWords] = useState([]);
 
+  const toggleLevel = (l) => {
+    if (l === "전체") { setLevels(new Set()); return; }
+    setLevels(prev => {
+      const next = new Set(prev);
+      next.has(l) ? next.delete(l) : next.add(l);
+      return next;
+    });
+  };
+
   const filtered = useMemo(() => {
     let d = vocabData;
-    if (level !== "전체") d = d.filter(w => w.level === level);
+    if (levels.size > 0) d = d.filter(w => levels.has(w.level));
     if (type !== "전체") d = d.filter(w => w.type === type);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       d = d.filter(w => w.kanji.includes(q) || w.reading.includes(q) || w.meaning.includes(q));
     }
     return d;
-  }, [level, type, search]);
+  }, [levels, type, search]);
 
   const counts = useMemo(() => {
     const c = { N5:0, N4:0, N3:0, 동사:0, "い형":0, "な형":0 };
@@ -518,12 +527,23 @@ function App() {
     return c;
   }, [filtered]);
 
+  const modeRef = useRef(mode);
+  useEffect(() => { modeRef.current = mode; }, [mode]);
+
   const startFlash = () => {
     const arr = [...filtered].sort(() => Math.random() - 0.5);
     setFlashWords(arr);
     setFlashIdx(0);
     setMode("flash");
   };
+
+  useEffect(() => {
+    if (modeRef.current === "flash") {
+      const arr = [...filtered].sort(() => Math.random() - 0.5);
+      setFlashWords(arr);
+      setFlashIdx(0);
+    }
+  }, [filtered]);
 
   const currentWord = flashWords[flashIdx % Math.max(flashWords.length, 1)];
 
@@ -559,13 +579,17 @@ function App() {
               fontSize:14, outline:"none", boxSizing:"border-box", marginBottom:12, fontFamily:"inherit",
             }} />
           <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:8 }}>
-            {LEVELS.map(l => (
-              <button key={l} onClick={() => setLevel(l)} style={{
-                padding:"5px 14px", borderRadius:8, border:"none", fontWeight:700, fontSize:12, cursor:"pointer",
-                background: level===l ? (l==="전체" ? "#1e293b" : LEVEL_COLOR[l]) : "#f1f5f9",
-                color: level===l ? "#fff" : "#64748b",
-              }}>{l}</button>
-            ))}
+            {LEVELS.map(l => {
+              const isAll = l === "전체";
+              const active = isAll ? levels.size === 0 : levels.has(l);
+              return (
+                <button key={l} onClick={() => toggleLevel(l)} style={{
+                  padding:"5px 14px", borderRadius:8, border:"none", fontWeight:700, fontSize:12, cursor:"pointer",
+                  background: active ? (isAll ? "#1e293b" : LEVEL_COLOR[l]) : "#f1f5f9",
+                  color: active ? "#fff" : "#64748b",
+                }}>{l}</button>
+              );
+            })}
           </div>
           <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
             {TYPES.map(t => (
