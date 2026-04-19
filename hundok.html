@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JLPT N5~N3 훈독 단어장</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif; }
+  input:focus { border-color: #3b82f6 !important; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+const vocabData = [
+  // ===== N5 동사 =====
+  { kanji:"会う",reading:"あう",meaning:"만나다",level:"N5",type:"동사" },
+  { kanji:"開く",reading:"あく",meaning:"열리다(자)",level:"N5",type:"동사" },
+  { kanji:"開ける",reading:"あける",meaning:"열다(타)",level:"N5",type:"동사" },
+  { kanji:"上がる",reading:"あがる",meaning:"올라가다",level:"N5",type:"동사" },
+  { kanji:"歩く",reading:"あるく",meaning:"걷다",level:"N5",type:"동사" },
+  { kanji:"言う",reading:"いう",meaning:"말하다",level:"N5",type:"동사" },
+  { kanji:"行く",reading:"いく",meaning:"가다",level:"N5",type:"동사" },
+  { kanji:"入る",reading:"はいる",meaning:"들어가다",level:"N5",type:"동사" },
+  { kanji:"入れる",reading:"いれる",meaning:"넣다",level:"N5",type:"동사" },
+  { kanji:"動く",reading:"うごく",meaning:"움직이다",level:"N5",type:"동사" },
+  { kanji:"売る",reading:"うる",meaning:"팔다",level:"N5",type:"동사" },
+  { kanji:"起きる",reading:"おきる",meaning:"일어나다",level:"N5",type:"동사" },
+  { kanji:"置く",reading:"おく",meaning:"놓다",level:"N5",type:"동사" },
+  { kanji:"押す",reading:"おす",meaning:"밀다/누르다",level:"N5",type:"동사" },
+  { kanji:"落ちる",reading:"おちる",meaning:"떨어지다",level:"N5",type:"동사" },
+  { kanji:"落とす",reading:"おとす",meaning:"떨어뜨리다",level:"N5",type:"동사" },
+  { kanji:"思う",reading:"おもう",meaning:"생각하다",level:"N5",type:"동사" },
+  { kanji:"泳ぐ",reading:"およぐ",meaning:"수영하다",level:"N5",type:"동사" },
+  { kanji:"終わる",reading:"おわる",meaning:"끝나다",level:"N5",type:"동사" },
+  { kanji:"起こす",reading:"おこす",meaning:"깨우다",level:"N5",type:"동사" },
+  { kanji:"教える",reading:"おしえる",meaning:"가르치다",level:"N5",type:"동사" },
+  { kanji:"覚える",reading:"おぼえる",meaning:"외우다/기억하다",level:"N5",type:"동사" },
+  { kanji:"送る",reading:"おくる",meaning:"보내다",level:"N5",type:"동사" },
+  { kanji:"買う",reading:"かう",meaning:"사다",level:"N5",type:"동사" },
+  { kanji:"書く",reading:"かく",meaning:"쓰다",level:"N5",type:"동사" },
+  { kanji:"貸す",reading:"かす",meaning:"빌려주다",level:"N5",type:"동사" },
+  { kanji:"借りる",reading:"かりる",meaning:"빌리다",level:"N5",type:"동사" },
+  { kanji:"帰る",reading:"かえる",meaning:"돌아가다",level:"N5",type:"동사" },
+  { kanji:"返す",reading:"かえす",meaning:"돌려주다",level:"N5",type:"동사" },
+  { kanji:"変わる",reading:"かわる",meaning:"바뀌다",level:"N5",type:"동사" },
+  { kanji:"変える",reading:"かえる",meaning:"바꾸다",level:"N5",type:"동사" },
+  { kanji:"着る",reading:"きる",meaning:"입다",level:"N5",type:"동사" },
+  { kanji:"切る",reading:"きる",meaning:"자르다",level:"N5",type:"동사" },
+  { kanji:"聞く",reading:"きく",meaning:"듣다/묻다",level:"N5",type:"동사" },
+  { kanji:"消える",reading:"きえる",meaning:"사라지다",level:"N5",type:"동사" },
+  { kanji:"消す",reading:"けす",meaning:"지우다/끄다",level:"N5",type:"동사" },
+  { kanji:"来る",reading:"くる",meaning:"오다",level:"N5",type:"동사" },
+  { kanji:"知る",reading:"しる",meaning:"알다",level:"N5",type:"동사" },
+  { kanji:"死ぬ",reading:"しぬ",meaning:"죽다",level:"N5",type:"동사" },
+  { kanji:"閉まる",reading:"しまる",meaning:"닫히다",level:"N5",type:"동사" },
+  { kanji:"閉める",reading:"しめる",meaning:"닫다",level:"N5",type:"동사" },
+  { kanji:"住む",reading:"すむ",meaning:"살다/거주하다",level:"N5",type:"동사" },
+  { kanji:"座る",reading:"すわる",meaning:"앉다",level:"N5",type:"동사" },
+  { kanji:"立つ",reading:"たつ",meaning:"서다",level:"N5",type:"동사" },
+  { kanji:"食べる",reading:"たべる",meaning:"먹다",level:"N5",type:"동사" },
+  { kanji:"使う",reading:"つかう",meaning:"사용하다",level:"N5",type:"동사" },
+  { kanji:"作る",reading:"つくる",meaning:"만들다",level:"N5",type:"동사" },
+  { kanji:"着く",reading:"つく",meaning:"도착하다",level:"N5",type:"동사" },
+  { kanji:"出る",reading:"でる",meaning:"나가다/나오다",level:"N5",type:"동사" },
+  { kanji:"出す",reading:"だす",meaning:"꺼내다",level:"N5",type:"동사" },
+  { kanji:"飛ぶ",reading:"とぶ",meaning:"날다",level:"N5",type:"동사" },
+  { kanji:"取る",reading:"とる",meaning:"잡다/취하다",level:"N5",type:"동사" },
+  { kanji:"止まる",reading:"とまる",meaning:"멈추다",level:"N5",type:"동사" },
+  { kanji:"止める",reading:"とめる",meaning:"멈추게 하다",level:"N5",type:"동사" },
+  { kanji:"泊まる",reading:"とまる",meaning:"숙박하다",level:"N5",type:"동사" },
+  { kanji:"直す",reading:"なおす",meaning:"고치다",level:"N5",type:"동사" },
+  { kanji:"直る",reading:"なおる",meaning:"고쳐지다",level:"N5",type:"동사" },
+  { kanji:"習う",reading:"ならう",meaning:"배우다",level:"N5",type:"동사" },
+  { kanji:"飲む",reading:"のむ",meaning:"마시다",level:"N5",type:"동사" },
+  { kanji:"乗る",reading:"のる",meaning:"타다",level:"N5",type:"동사" },
+  { kanji:"話す",reading:"はなす",meaning:"말하다/이야기하다",level:"N5",type:"동사" },
+  { kanji:"走る",reading:"はしる",meaning:"달리다",level:"N5",type:"동사" },
+  { kanji:"始まる",reading:"はじまる",meaning:"시작되다",level:"N5",type:"동사" },
+  { kanji:"始める",reading:"はじめる",meaning:"시작하다",level:"N5",type:"동사" },
+  { kanji:"引く",reading:"ひく",meaning:"당기다",level:"N5",type:"동사" },
+  { kanji:"開く",reading:"ひらく",meaning:"펼치다/열다",level:"N5",type:"동사" },
+  { kanji:"見る",reading:"みる",meaning:"보다",level:"N5",type:"동사" },
+  { kanji:"待つ",reading:"まつ",meaning:"기다리다",level:"N5",type:"동사" },
+  { kanji:"持つ",reading:"もつ",meaning:"들다/갖다",level:"N5",type:"동사" },
+  { kanji:"読む",reading:"よむ",meaning:"읽다",level:"N5",type:"동사" },
+  { kanji:"呼ぶ",reading:"よぶ",meaning:"부르다",level:"N5",type:"동사" },
+  { kanji:"分かる",reading:"わかる",meaning:"알다/이해하다",level:"N5",type:"동사" },
+  { kanji:"渡る",reading:"わたる",meaning:"건너다",level:"N5",type:"동사" },
+  { kanji:"忘れる",reading:"わすれる",meaning:"잊다",level:"N5",type:"동사" },
+  { kanji:"集める",reading:"あつめる",meaning:"모으다",level:"N5",type:"동사" },
+  // ===== N5 い형 =====
+  { kanji:"青い",reading:"あおい",meaning:"파랗다",level:"N5",type:"い형" },
+  { kanji:"赤い",reading:"あかい",meaning:"빨갛다",level:"N5",type:"い형" },
+  { kanji:"明るい",reading:"あかるい",meaning:"밝다",level:"N5",type:"い형" },
+  { kanji:"暖かい",reading:"あたたかい",meaning:"따뜻하다(날씨)",level:"N5",type:"い형" },
+  { kanji:"新しい",reading:"あたらしい",meaning:"새롭다",level:"N5",type:"い형" },
+  { kanji:"厚い",reading:"あつい",meaning:"두껍다",level:"N5",type:"い형" },
+  { kanji:"暑い",reading:"あつい",meaning:"덥다",level:"N5",type:"い형" },
+  { kanji:"甘い",reading:"あまい",meaning:"달다",level:"N5",type:"い형" },
+  { kanji:"忙しい",reading:"いそがしい",meaning:"바쁘다",level:"N5",type:"い형" },
+  { kanji:"痛い",reading:"いたい",meaning:"아프다",level:"N5",type:"い형" },
+  { kanji:"薄い",reading:"うすい",meaning:"얇다/연하다",level:"N5",type:"い형" },
+  { kanji:"嬉しい",reading:"うれしい",meaning:"기쁘다",level:"N5",type:"い형" },
+  { kanji:"大きい",reading:"おおきい",meaning:"크다",level:"N5",type:"い형" },
+  { kanji:"面白い",reading:"おもしろい",meaning:"재미있다",level:"N5",type:"い형" },
+  { kanji:"重い",reading:"おもい",meaning:"무겁다",level:"N5",type:"い형" },
+  { kanji:"辛い",reading:"からい",meaning:"맵다",level:"N5",type:"い형" },
+  { kanji:"軽い",reading:"かるい",meaning:"가볍다",level:"N5",type:"い형" },
+  { kanji:"悲しい",reading:"かなしい",meaning:"슬프다",level:"N5",type:"い형" },
+  { kanji:"黒い",reading:"くろい",meaning:"검다",level:"N5",type:"い형" },
+  { kanji:"暗い",reading:"くらい",meaning:"어둡다",level:"N5",type:"い형" },
+  { kanji:"怖い",reading:"こわい",meaning:"무섭다",level:"N5",type:"い형" },
+  { kanji:"寒い",reading:"さむい",meaning:"춥다",level:"N5",type:"い형" },
+  { kanji:"白い",reading:"しろい",meaning:"하얗다",level:"N5",type:"い형" },
+  { kanji:"涼しい",reading:"すずしい",meaning:"시원하다",level:"N5",type:"い형" },
+  { kanji:"少ない",reading:"すくない",meaning:"적다",level:"N5",type:"い형" },
+  { kanji:"狭い",reading:"せまい",meaning:"좁다",level:"N5",type:"い형" },
+  { kanji:"高い",reading:"たかい",meaning:"높다/비싸다",level:"N5",type:"い형" },
+  { kanji:"楽しい",reading:"たのしい",meaning:"즐겁다",level:"N5",type:"い형" },
+  { kanji:"小さい",reading:"ちいさい",meaning:"작다",level:"N5",type:"い형" },
+  { kanji:"近い",reading:"ちかい",meaning:"가깝다",level:"N5",type:"い형" },
+  { kanji:"強い",reading:"つよい",meaning:"강하다",level:"N5",type:"い형" },
+  { kanji:"遠い",reading:"とおい",meaning:"멀다",level:"N5",type:"い형" },
+  { kanji:"長い",reading:"ながい",meaning:"길다",level:"N5",type:"い형" },
+  { kanji:"難しい",reading:"むずかしい",meaning:"어렵다",level:"N5",type:"い형" },
+  { kanji:"古い",reading:"ふるい",meaning:"오래되다",level:"N5",type:"い형" },
+  { kanji:"広い",reading:"ひろい",meaning:"넓다",level:"N5",type:"い형" },
+  { kanji:"低い",reading:"ひくい",meaning:"낮다",level:"N5",type:"い형" },
+  { kanji:"短い",reading:"みじかい",meaning:"짧다",level:"N5",type:"い형" },
+  { kanji:"易しい",reading:"やさしい",meaning:"쉽다",level:"N5",type:"い형" },
+  { kanji:"安い",reading:"やすい",meaning:"싸다",level:"N5",type:"い형" },
+  { kanji:"良い",reading:"よい/いい",meaning:"좋다",level:"N5",type:"い형" },
+  { kanji:"弱い",reading:"よわい",meaning:"약하다",level:"N5",type:"い형" },
+  { kanji:"若い",reading:"わかい",meaning:"젊다",level:"N5",type:"い형" },
+  { kanji:"深い",reading:"ふかい",meaning:"깊다",level:"N5",type:"い형" },
+  { kanji:"細い",reading:"ほそい",meaning:"가늘다",level:"N5",type:"い형" },
+  { kanji:"丸い",reading:"まるい",meaning:"둥글다",level:"N5",type:"い형" },
+  { kanji:"硬い",reading:"かたい",meaning:"딱딱하다",level:"N5",type:"い형" },
+  { kanji:"柔らかい",reading:"やわらかい",meaning:"부드럽다",level:"N5",type:"い형" },
+  // ===== N5 な형 =====
+  { kanji:"嫌い",reading:"きらい",meaning:"싫어하다",level:"N5",type:"な형" },
+  { kanji:"元気",reading:"げんき",meaning:"건강하다/활기차다",level:"N5",type:"な형" },
+  { kanji:"好き",reading:"すき",meaning:"좋아하다",level:"N5",type:"な형" },
+  { kanji:"上手",reading:"じょうず",meaning:"잘하다/능숙하다",level:"N5",type:"な형" },
+  { kanji:"下手",reading:"へた",meaning:"못하다/서투르다",level:"N5",type:"な형" },
+  { kanji:"便利",reading:"べんり",meaning:"편리하다",level:"N5",type:"な형" },
+  { kanji:"大丈夫",reading:"だいじょうぶ",meaning:"괜찮다",level:"N5",type:"な형" },
+  { kanji:"大切",reading:"たいせつ",meaning:"소중하다",level:"N5",type:"な형" },
+  { kanji:"大変",reading:"たいへん",meaning:"힘들다/대단하다",level:"N5",type:"な형" },
+  { kanji:"有名",reading:"ゆうめい",meaning:"유명하다",level:"N5",type:"な형" },
+  { kanji:"静か",reading:"しずか",meaning:"조용하다",level:"N5",type:"な형" },
+  { kanji:"親切",reading:"しんせつ",meaning:"친절하다",level:"N5",type:"な형" },
+  { kanji:"丈夫",reading:"じょうぶ",meaning:"튼튼하다",level:"N5",type:"な형" },
+  { kanji:"暇",reading:"ひま",meaning:"한가하다",level:"N5",type:"な형" },
+  { kanji:"必要",reading:"ひつよう",meaning:"필요하다",level:"N5",type:"な형" },
+  { kanji:"特別",reading:"とくべつ",meaning:"특별하다",level:"N5",type:"な형" },
+  { kanji:"普通",reading:"ふつう",meaning:"보통이다",level:"N5",type:"な형" },
+  { kanji:"真面目",reading:"まじめ",meaning:"성실하다",level:"N5",type:"な형" },
+  { kanji:"自由",reading:"じゆう",meaning:"자유롭다",level:"N5",type:"な형" },
+  { kanji:"安全",reading:"あんぜん",meaning:"안전하다",level:"N5",type:"な형" },
+  // ===== N4 동사 =====
+  { kanji:"上げる",reading:"あげる",meaning:"올리다/주다",level:"N4",type:"동사" },
+  { kanji:"集まる",reading:"あつまる",meaning:"모이다",level:"N4",type:"동사" },
+  { kanji:"謝る",reading:"あやまる",meaning:"사과하다",level:"N4",type:"동사" },
+  { kanji:"生きる",reading:"いきる",meaning:"살다",level:"N4",type:"동사" },
+  { kanji:"急ぐ",reading:"いそぐ",meaning:"서두르다",level:"N4",type:"동사" },
+  { kanji:"祝う",reading:"いわう",meaning:"축하하다",level:"N4",type:"동사" },
+  { kanji:"受ける",reading:"うける",meaning:"받다/시험을 치르다",level:"N4",type:"동사" },
+  { kanji:"生まれる",reading:"うまれる",meaning:"태어나다",level:"N4",type:"동사" },
+  { kanji:"選ぶ",reading:"えらぶ",meaning:"고르다",level:"N4",type:"동사" },
+  { kanji:"起こる",reading:"おこる",meaning:"발생하다",level:"N4",type:"동사" },
+  { kanji:"怒る",reading:"おこる",meaning:"화내다",level:"N4",type:"동사" },
+  { kanji:"驚く",reading:"おどろく",meaning:"놀라다",level:"N4",type:"동사" },
+  { kanji:"思い出す",reading:"おもいだす",meaning:"떠올리다",level:"N4",type:"동사" },
+  { kanji:"降りる",reading:"おりる",meaning:"내리다",level:"N4",type:"동사" },
+  { kanji:"飼う",reading:"かう",meaning:"기르다/사육하다",level:"N4",type:"동사" },
+  { kanji:"数える",reading:"かぞえる",meaning:"세다",level:"N4",type:"동사" },
+  { kanji:"感じる",reading:"かんじる",meaning:"느끼다",level:"N4",type:"동사" },
+  { kanji:"考える",reading:"かんがえる",meaning:"생각하다",level:"N4",type:"동사" },
+  { kanji:"決まる",reading:"きまる",meaning:"결정되다",level:"N4",type:"동사" },
+  { kanji:"決める",reading:"きめる",meaning:"결정하다",level:"N4",type:"동사" },
+  { kanji:"比べる",reading:"くらべる",meaning:"비교하다",level:"N4",type:"동사" },
+  { kanji:"壊れる",reading:"こわれる",meaning:"부서지다",level:"N4",type:"동사" },
+  { kanji:"壊す",reading:"こわす",meaning:"부수다",level:"N4",type:"동사" },
+  { kanji:"込む",reading:"こむ",meaning:"붐비다",level:"N4",type:"동사" },
+  { kanji:"探す",reading:"さがす",meaning:"찾다",level:"N4",type:"동사" },
+  { kanji:"下がる",reading:"さがる",meaning:"내려가다",level:"N4",type:"동사" },
+  { kanji:"触る",reading:"さわる",meaning:"만지다",level:"N4",type:"동사" },
+  { kanji:"調べる",reading:"しらべる",meaning:"조사하다",level:"N4",type:"동사" },
+  { kanji:"過ぎる",reading:"すぎる",meaning:"지나치다/너무~하다",level:"N4",type:"동사" },
+  { kanji:"捨てる",reading:"すてる",meaning:"버리다",level:"N4",type:"동사" },
+  { kanji:"育てる",reading:"そだてる",meaning:"키우다",level:"N4",type:"동사" },
+  { kanji:"育つ",reading:"そだつ",meaning:"자라다",level:"N4",type:"동사" },
+  { kanji:"続く",reading:"つづく",meaning:"계속되다",level:"N4",type:"동사" },
+  { kanji:"続ける",reading:"つづける",meaning:"계속하다",level:"N4",type:"동사" },
+  { kanji:"疲れる",reading:"つかれる",meaning:"피곤해지다",level:"N4",type:"동사" },
+  { kanji:"届く",reading:"とどく",meaning:"닿다/도달하다",level:"N4",type:"동사" },
+  { kanji:"届ける",reading:"とどける",meaning:"전달하다",level:"N4",type:"동사" },
+  { kanji:"泣く",reading:"なく",meaning:"울다",level:"N4",type:"동사" },
+  { kanji:"亡くなる",reading:"なくなる",meaning:"돌아가다(사망)",level:"N4",type:"동사" },
+  { kanji:"無くなる",reading:"なくなる",meaning:"없어지다",level:"N4",type:"동사" },
+  { kanji:"並ぶ",reading:"ならぶ",meaning:"줄 서다",level:"N4",type:"동사" },
+  { kanji:"並べる",reading:"ならべる",meaning:"늘어놓다",level:"N4",type:"동사" },
+  { kanji:"似る",reading:"にる",meaning:"닮다",level:"N4",type:"동사" },
+  { kanji:"逃げる",reading:"にげる",meaning:"도망치다",level:"N4",type:"동사" },
+  { kanji:"脱ぐ",reading:"ぬぐ",meaning:"벗다",level:"N4",type:"동사" },
+  { kanji:"残る",reading:"のこる",meaning:"남다",level:"N4",type:"동사" },
+  { kanji:"残す",reading:"のこす",meaning:"남기다",level:"N4",type:"동사" },
+  { kanji:"登る",reading:"のぼる",meaning:"오르다",level:"N4",type:"동사" },
+  { kanji:"乗り換える",reading:"のりかえる",meaning:"갈아타다",level:"N4",type:"동사" },
+  { kanji:"運ぶ",reading:"はこぶ",meaning:"운반하다",level:"N4",type:"동사" },
+  { kanji:"払う",reading:"はらう",meaning:"지불하다",level:"N4",type:"동사" },
+  { kanji:"引っ越す",reading:"ひっこす",meaning:"이사하다",level:"N4",type:"동사" },
+  { kanji:"拾う",reading:"ひろう",meaning:"줍다",level:"N4",type:"동사" },
+  { kanji:"引っ張る",reading:"ひっぱる",meaning:"끌어당기다",level:"N4",type:"동사" },
+  { kanji:"増える",reading:"ふえる",meaning:"늘다",level:"N4",type:"동사" },
+  { kanji:"増やす",reading:"ふやす",meaning:"늘리다",level:"N4",type:"동사" },
+  { kanji:"踏む",reading:"ふむ",meaning:"밟다",level:"N4",type:"동사" },
+  { kanji:"降る",reading:"ふる",meaning:"내리다(비/눈)",level:"N4",type:"동사" },
+  { kanji:"曲がる",reading:"まがる",meaning:"구부러지다/돌다",level:"N4",type:"동사" },
+  { kanji:"負ける",reading:"まける",meaning:"지다",level:"N4",type:"동사" },
+  { kanji:"迷う",reading:"まよう",meaning:"헤매다/망설이다",level:"N4",type:"동사" },
+  { kanji:"見える",reading:"みえる",meaning:"보이다",level:"N4",type:"동사" },
+  { kanji:"見せる",reading:"みせる",meaning:"보여주다",level:"N4",type:"동사" },
+  { kanji:"見つかる",reading:"みつかる",meaning:"발견되다",level:"N4",type:"동사" },
+  { kanji:"見つける",reading:"みつける",meaning:"발견하다",level:"N4",type:"동사" },
+  { kanji:"戻る",reading:"もどる",meaning:"돌아오다",level:"N4",type:"동사" },
+  { kanji:"戻す",reading:"もどす",meaning:"되돌리다",level:"N4",type:"동사" },
+  { kanji:"喜ぶ",reading:"よろこぶ",meaning:"기뻐하다",level:"N4",type:"동사" },
+  { kanji:"笑う",reading:"わらう",meaning:"웃다",level:"N4",type:"동사" },
+  { kanji:"割る",reading:"わる",meaning:"깨다/나누다",level:"N4",type:"동사" },
+  { kanji:"割れる",reading:"われる",meaning:"깨지다",level:"N4",type:"동사" },
+  { kanji:"渡す",reading:"わたす",meaning:"건네다",level:"N4",type:"동사" },
+  { kanji:"頑張る",reading:"がんばる",meaning:"열심히 하다",level:"N4",type:"동사" },
+  { kanji:"困る",reading:"こまる",meaning:"곤란하다",level:"N4",type:"동사" },
+  { kanji:"合う",reading:"あう",meaning:"맞다/어울리다",level:"N4",type:"동사" },
+  { kanji:"勝つ",reading:"かつ",meaning:"이기다",level:"N4",type:"동사" },
+  { kanji:"汚れる",reading:"よごれる",meaning:"더러워지다",level:"N4",type:"동사" },
+  { kanji:"汚す",reading:"よごす",meaning:"더럽히다",level:"N4",type:"동사" },
+  { kanji:"冷える",reading:"ひえる",meaning:"식다/차가워지다",level:"N4",type:"동사" },
+  { kanji:"冷やす",reading:"ひやす",meaning:"식히다",level:"N4",type:"동사" },
+  { kanji:"温める",reading:"あたためる",meaning:"데우다",level:"N4",type:"동사" },
+  { kanji:"温まる",reading:"あたたまる",meaning:"따뜻해지다",level:"N4",type:"동사" },
+  // ===== N4 い형 =====
+  { kanji:"浅い",reading:"あさい",meaning:"얕다",level:"N4",type:"い형" },
+  { kanji:"痒い",reading:"かゆい",meaning:"가렵다",level:"N4",type:"い형" },
+  { kanji:"固い",reading:"かたい",meaning:"딱딱하다/굳다",level:"N4",type:"い형" },
+  { kanji:"苦い",reading:"にがい",meaning:"쓰다",level:"N4",type:"い형" },
+  { kanji:"臭い",reading:"くさい",meaning:"냄새나다",level:"N4",type:"い형" },
+  { kanji:"酸っぱい",reading:"すっぱい",meaning:"시다",level:"N4",type:"い형" },
+  { kanji:"正しい",reading:"ただしい",meaning:"올바르다",level:"N4",type:"い형" },
+  { kanji:"眠い",reading:"ねむい",meaning:"졸리다",level:"N4",type:"い형" },
+  { kanji:"激しい",reading:"はげしい",meaning:"격렬하다",level:"N4",type:"い형" },
+  { kanji:"恥ずかしい",reading:"はずかしい",meaning:"부끄럽다",level:"N4",type:"い형" },
+  { kanji:"珍しい",reading:"めずらしい",meaning:"드물다/신기하다",level:"N4",type:"い형" },
+  { kanji:"優しい",reading:"やさしい",meaning:"친절하다/상냥하다",level:"N4",type:"い형" },
+  { kanji:"酷い",reading:"ひどい",meaning:"심하다/지독하다",level:"N4",type:"い형" },
+  { kanji:"悔しい",reading:"くやしい",meaning:"억울하다",level:"N4",type:"い형" },
+  { kanji:"懐かしい",reading:"なつかしい",meaning:"그립다",level:"N4",type:"い형" },
+  { kanji:"冷たい",reading:"つめたい",meaning:"차갑다",level:"N4",type:"い형" },
+  { kanji:"温かい",reading:"あたたかい",meaning:"따뜻하다(음식 등)",level:"N4",type:"い형" },
+  // ===== N4 な형 =====
+  { kanji:"安心",reading:"あんしん",meaning:"안심이다",level:"N4",type:"な형" },
+  { kanji:"丁寧",reading:"ていねい",meaning:"정중하다",level:"N4",type:"な형" },
+  { kanji:"得意",reading:"とくい",meaning:"자신 있다",level:"N4",type:"な형" },
+  { kanji:"苦手",reading:"にがて",meaning:"서투르다/힘들다",level:"N4",type:"な형" },
+  { kanji:"不思議",reading:"ふしぎ",meaning:"신기하다/이상하다",level:"N4",type:"な형" },
+  { kanji:"不便",reading:"ふべん",meaning:"불편하다",level:"N4",type:"な형" },
+  { kanji:"複雑",reading:"ふくざつ",meaning:"복잡하다",level:"N4",type:"な형" },
+  { kanji:"立派",reading:"りっぱ",meaning:"훌륭하다",level:"N4",type:"な형" },
+  { kanji:"残念",reading:"ざんねん",meaning:"아쉽다/유감이다",level:"N4",type:"な형" },
+  { kanji:"正直",reading:"しょうじき",meaning:"정직하다",level:"N4",type:"な형" },
+  { kanji:"素直",reading:"すなお",meaning:"솔직하다/순순하다",level:"N4",type:"な형" },
+  { kanji:"大事",reading:"だいじ",meaning:"중요하다",level:"N4",type:"な형" },
+  { kanji:"適当",reading:"てきとう",meaning:"적당하다",level:"N4",type:"な형" },
+  { kanji:"無駄",reading:"むだ",meaning:"낭비이다/쓸데없다",level:"N4",type:"な형" },
+  { kanji:"幸せ",reading:"しあわせ",meaning:"행복하다",level:"N4",type:"な형" },
+  { kanji:"自然",reading:"しぜん",meaning:"자연스럽다",level:"N4",type:"な형" },
+  { kanji:"急",reading:"きゅう",meaning:"갑작스럽다",level:"N4",type:"な형" },
+  { kanji:"親しい",reading:"したしい",meaning:"친하다/친밀하다",level:"N4",type:"な형" },
+  // ===== N3 동사 =====
+  { kanji:"諦める",reading:"あきらめる",meaning:"포기하다",level:"N3",type:"동사" },
+  { kanji:"飽きる",reading:"あきる",meaning:"질리다",level:"N3",type:"동사" },
+  { kanji:"扱う",reading:"あつかう",meaning:"다루다",level:"N3",type:"동사" },
+  { kanji:"当たる",reading:"あたる",meaning:"맞다/당첨되다",level:"N3",type:"동사" },
+  { kanji:"当てる",reading:"あてる",meaning:"맞추다/대다",level:"N3",type:"동사" },
+  { kanji:"表れる",reading:"あらわれる",meaning:"나타나다",level:"N3",type:"동사" },
+  { kanji:"表す",reading:"あらわす",meaning:"나타내다",level:"N3",type:"동사" },
+  { kanji:"頂く",reading:"いただく",meaning:"받다(겸손어)",level:"N3",type:"동사" },
+  { kanji:"移る",reading:"うつる",meaning:"옮겨지다/이동하다",level:"N3",type:"동사" },
+  { kanji:"移す",reading:"うつす",meaning:"옮기다",level:"N3",type:"동사" },
+  { kanji:"打つ",reading:"うつ",meaning:"치다/두드리다",level:"N3",type:"동사" },
+  { kanji:"失う",reading:"うしなう",meaning:"잃다",level:"N3",type:"동사" },
+  { kanji:"得る",reading:"える",meaning:"얻다",level:"N3",type:"동사" },
+  { kanji:"追う",reading:"おう",meaning:"쫓다",level:"N3",type:"동사" },
+  { kanji:"行う",reading:"おこなう",meaning:"행하다",level:"N3",type:"동사" },
+  { kanji:"抑える",reading:"おさえる",meaning:"억제하다/누르다",level:"N3",type:"동사" },
+  { kanji:"収める",reading:"おさめる",meaning:"수납하다/이루다",level:"N3",type:"동사" },
+  { kanji:"訪れる",reading:"おとずれる",meaning:"방문하다/찾아오다",level:"N3",type:"동사" },
+  { kanji:"訪ねる",reading:"たずねる",meaning:"방문하다/묻다",level:"N3",type:"동사" },
+  { kanji:"落ち込む",reading:"おちこむ",meaning:"의기소침해지다",level:"N3",type:"동사" },
+  { kanji:"掛かる",reading:"かかる",meaning:"걸리다",level:"N3",type:"동사" },
+  { kanji:"掛ける",reading:"かける",meaning:"걸다",level:"N3",type:"동사" },
+  { kanji:"関わる",reading:"かかわる",meaning:"관계하다",level:"N3",type:"동사" },
+  { kanji:"抱える",reading:"かかえる",meaning:"떠안다",level:"N3",type:"동사" },
+  { kanji:"重なる",reading:"かさなる",meaning:"겹치다",level:"N3",type:"동사" },
+  { kanji:"重ねる",reading:"かさねる",meaning:"쌓다/겹치다",level:"N3",type:"동사" },
+  { kanji:"片付ける",reading:"かたづける",meaning:"정리하다",level:"N3",type:"동사" },
+  { kanji:"片付く",reading:"かたづく",meaning:"정리되다",level:"N3",type:"동사" },
+  { kanji:"構う",reading:"かまう",meaning:"상관하다/신경 쓰다",level:"N3",type:"동사" },
+  { kanji:"叶う",reading:"かなう",meaning:"이루어지다",level:"N3",type:"동사" },
+  { kanji:"乾く",reading:"かわく",meaning:"마르다",level:"N3",type:"동사" },
+  { kanji:"乾かす",reading:"かわかす",meaning:"말리다",level:"N3",type:"동사" },
+  { kanji:"聞こえる",reading:"きこえる",meaning:"들리다",level:"N3",type:"동사" },
+  { kanji:"断る",reading:"ことわる",meaning:"거절하다",level:"N3",type:"동사" },
+  { kanji:"苦しむ",reading:"くるしむ",meaning:"괴로워하다",level:"N3",type:"동사" },
+  { kanji:"組む",reading:"くむ",meaning:"짜다/결성하다",level:"N3",type:"동사" },
+  { kanji:"繰り返す",reading:"くりかえす",meaning:"반복하다",level:"N3",type:"동사" },
+  { kanji:"加える",reading:"くわえる",meaning:"더하다/추가하다",level:"N3",type:"동사" },
+  { kanji:"答える",reading:"こたえる",meaning:"대답하다",level:"N3",type:"동사" },
+  { kanji:"込める",reading:"こめる",meaning:"담다/넣다",level:"N3",type:"동사" },
+  { kanji:"下げる",reading:"さげる",meaning:"내리다",level:"N3",type:"동사" },
+  { kanji:"避ける",reading:"さける",meaning:"피하다",level:"N3",type:"동사" },
+  { kanji:"支える",reading:"ささえる",meaning:"지지하다",level:"N3",type:"동사" },
+  { kanji:"騒ぐ",reading:"さわぐ",meaning:"떠들다/소란 피우다",level:"N3",type:"동사" },
+  { kanji:"従う",reading:"したがう",meaning:"따르다",level:"N3",type:"동사" },
+  { kanji:"絞る",reading:"しぼる",meaning:"짜다/좁히다",level:"N3",type:"동사" },
+  { kanji:"縮む",reading:"ちぢむ",meaning:"줄어들다",level:"N3",type:"동사" },
+  { kanji:"縮める",reading:"ちぢめる",meaning:"줄이다",level:"N3",type:"동사" },
+  { kanji:"沈む",reading:"しずむ",meaning:"가라앉다",level:"N3",type:"동사" },
+  { kanji:"知らせる",reading:"しらせる",meaning:"알리다",level:"N3",type:"동사" },
+  { kanji:"進む",reading:"すすむ",meaning:"나아가다",level:"N3",type:"동사" },
+  { kanji:"進める",reading:"すすめる",meaning:"진행시키다",level:"N3",type:"동사" },
+  { kanji:"勧める",reading:"すすめる",meaning:"권하다",level:"N3",type:"동사" },
+  { kanji:"滑る",reading:"すべる",meaning:"미끄러지다",level:"N3",type:"동사" },
+  { kanji:"済む",reading:"すむ",meaning:"끝나다/해결되다",level:"N3",type:"동사" },
+  { kanji:"済ます",reading:"すます",meaning:"끝내다",level:"N3",type:"동사" },
+  { kanji:"試す",reading:"ためす",meaning:"시험해보다",level:"N3",type:"동사" },
+  { kanji:"保つ",reading:"たもつ",meaning:"유지하다",level:"N3",type:"동사" },
+  { kanji:"頼む",reading:"たのむ",meaning:"부탁하다",level:"N3",type:"동사" },
+  { kanji:"頼る",reading:"たよる",meaning:"의지하다",level:"N3",type:"동사" },
+  { kanji:"違う",reading:"ちがう",meaning:"다르다/틀리다",level:"N3",type:"동사" },
+  { kanji:"近づく",reading:"ちかづく",meaning:"가까워지다",level:"N3",type:"동사" },
+  { kanji:"積む",reading:"つむ",meaning:"쌓다",level:"N3",type:"동사" },
+  { kanji:"積もる",reading:"つもる",meaning:"쌓이다",level:"N3",type:"동사" },
+  { kanji:"包む",reading:"つつむ",meaning:"싸다/감싸다",level:"N3",type:"동사" },
+  { kanji:"伝える",reading:"つたえる",meaning:"전달하다",level:"N3",type:"동사" },
+  { kanji:"伝わる",reading:"つたわる",meaning:"전달되다",level:"N3",type:"동사" },
+  { kanji:"通る",reading:"とおる",meaning:"지나가다",level:"N3",type:"동사" },
+  { kanji:"通す",reading:"とおす",meaning:"통과시키다",level:"N3",type:"동사" },
+  { kanji:"解く",reading:"とく",meaning:"풀다",level:"N3",type:"동사" },
+  { kanji:"解ける",reading:"とける",meaning:"풀리다",level:"N3",type:"동사" },
+  { kanji:"溶ける",reading:"とける",meaning:"녹다",level:"N3",type:"동사" },
+  { kanji:"溶かす",reading:"とかす",meaning:"녹이다",level:"N3",type:"동사" },
+  { kanji:"取り組む",reading:"とりくむ",meaning:"맞붙다/매달리다",level:"N3",type:"동사" },
+  { kanji:"眺める",reading:"ながめる",meaning:"바라보다",level:"N3",type:"동사" },
+  { kanji:"流れる",reading:"ながれる",meaning:"흐르다",level:"N3",type:"동사" },
+  { kanji:"流す",reading:"ながす",meaning:"흘리다",level:"N3",type:"동사" },
+  { kanji:"慣れる",reading:"なれる",meaning:"익숙해지다",level:"N3",type:"동사" },
+  { kanji:"任せる",reading:"まかせる",meaning:"맡기다",level:"N3",type:"동사" },
+  { kanji:"混じる",reading:"まじる",meaning:"섞이다",level:"N3",type:"동사" },
+  { kanji:"混ぜる",reading:"まぜる",meaning:"섞다",level:"N3",type:"동사" },
+  { kanji:"磨く",reading:"みがく",meaning:"닦다",level:"N3",type:"동사" },
+  { kanji:"向かう",reading:"むかう",meaning:"향하다",level:"N3",type:"동사" },
+  { kanji:"向ける",reading:"むける",meaning:"향하게 하다",level:"N3",type:"동사" },
+  { kanji:"求める",reading:"もとめる",meaning:"구하다/요구하다",level:"N3",type:"동사" },
+  { kanji:"破る",reading:"やぶる",meaning:"찢다/깨다",level:"N3",type:"동사" },
+  { kanji:"破れる",reading:"やぶれる",meaning:"찢어지다",level:"N3",type:"동사" },
+  { kanji:"許す",reading:"ゆるす",meaning:"용서하다/허락하다",level:"N3",type:"동사" },
+  { kanji:"寄る",reading:"よる",meaning:"다가가다/들르다",level:"N3",type:"동사" },
+  { kanji:"沸く",reading:"わく",meaning:"끓다",level:"N3",type:"동사" },
+  { kanji:"沸かす",reading:"わかす",meaning:"끓이다",level:"N3",type:"동사" },
+  { kanji:"省く",reading:"はぶく",meaning:"생략하다",level:"N3",type:"동사" },
+  { kanji:"引き受ける",reading:"ひきうける",meaning:"맡다/인수하다",level:"N3",type:"동사" },
+  { kanji:"抱く",reading:"だく",meaning:"안다",level:"N3",type:"동사" },
+  { kanji:"見直す",reading:"みなおす",meaning:"재검토하다",level:"N3",type:"동사" },
+  { kanji:"受け取る",reading:"うけとる",meaning:"받아들이다/수취하다",level:"N3",type:"동사" },
+  { kanji:"引き出す",reading:"ひきだす",meaning:"끌어내다",level:"N3",type:"동사" },
+  { kanji:"働く",reading:"はたらく",meaning:"일하다",level:"N3",type:"동사" },
+  { kanji:"乗り越える",reading:"のりこえる",meaning:"극복하다",level:"N3",type:"동사" },
+  { kanji:"覚める",reading:"さめる",meaning:"깨다/식다",level:"N3",type:"동사" },
+  { kanji:"驚かす",reading:"おどろかす",meaning:"놀라게 하다",level:"N3",type:"동사" },
+  { kanji:"生かす",reading:"いかす",meaning:"살리다/활용하다",level:"N3",type:"동사" },
+  // ===== N3 い형 =====
+  { kanji:"怪しい",reading:"あやしい",meaning:"수상하다",level:"N3",type:"い형" },
+  { kanji:"惜しい",reading:"おしい",meaning:"아깝다",level:"N3",type:"い형" },
+  { kanji:"恐ろしい",reading:"おそろしい",meaning:"무섭다/두렵다",level:"N3",type:"い형" },
+  { kanji:"賢い",reading:"かしこい",meaning:"영리하다",level:"N3",type:"い형" },
+  { kanji:"厳しい",reading:"きびしい",meaning:"엄하다/혹독하다",level:"N3",type:"い형" },
+  { kanji:"苦しい",reading:"くるしい",meaning:"괴롭다",level:"N3",type:"い형" },
+  { kanji:"詳しい",reading:"くわしい",meaning:"자세하다/잘 알다",level:"N3",type:"い형" },
+  { kanji:"眩しい",reading:"まぶしい",meaning:"눈부시다",level:"N3",type:"い형" },
+  { kanji:"鋭い",reading:"するどい",meaning:"날카롭다",level:"N3",type:"い형" },
+  { kanji:"素晴らしい",reading:"すばらしい",meaning:"훌륭하다",level:"N3",type:"い형" },
+  { kanji:"だるい",reading:"だるい",meaning:"나른하다",level:"N3",type:"い형" },
+  { kanji:"力強い",reading:"ちからづよい",meaning:"힘차다",level:"N3",type:"い형" },
+  { kanji:"太い",reading:"ふとい",meaning:"굵다",level:"N3",type:"い형" },
+  { kanji:"乏しい",reading:"とぼしい",meaning:"부족하다/빈약하다",level:"N3",type:"い형" },
+  { kanji:"等しい",reading:"ひとしい",meaning:"같다/동등하다",level:"N3",type:"い형" },
+  { kanji:"騒がしい",reading:"さわがしい",meaning:"시끄럽다",level:"N3",type:"い형" },
+  { kanji:"憎い",reading:"にくい",meaning:"밉다",level:"N3",type:"い형" },
+  { kanji:"粗い",reading:"あらい",meaning:"거칠다",level:"N3",type:"い형" },
+  { kanji:"険しい",reading:"けわしい",meaning:"험하다/가파르다",level:"N3",type:"い형" },
+  { kanji:"清い",reading:"きよい",meaning:"깨끗하다/맑다",level:"N3",type:"い형" },
+  // ===== N3 な형 =====
+  { kanji:"明らか",reading:"あきらか",meaning:"명백하다",level:"N3",type:"な형" },
+  { kanji:"意外",reading:"いがい",meaning:"의외이다",level:"N3",type:"な형" },
+  { kanji:"上品",reading:"じょうひん",meaning:"우아하다",level:"N3",type:"な형" },
+  { kanji:"下品",reading:"げひん",meaning:"저속하다",level:"N3",type:"な형" },
+  { kanji:"確か",reading:"たしか",meaning:"확실하다",level:"N3",type:"な형" },
+  { kanji:"大げさ",reading:"おおげさ",meaning:"과장되다",level:"N3",type:"な형" },
+  { kanji:"穏やか",reading:"おだやか",meaning:"온화하다",level:"N3",type:"な형" },
+  { kanji:"活発",reading:"かっぱつ",meaning:"활발하다",level:"N3",type:"な형" },
+  { kanji:"勝手",reading:"かって",meaning:"제멋대로다",level:"N3",type:"な형" },
+  { kanji:"さまざま",reading:"さまざま",meaning:"다양하다",level:"N3",type:"な형" },
+  { kanji:"盛ん",reading:"さかん",meaning:"활발하다/왕성하다",level:"N3",type:"な형" },
+  { kanji:"重大",reading:"じゅうだい",meaning:"중대하다",level:"N3",type:"な형" },
+  { kanji:"正確",reading:"せいかく",meaning:"정확하다",level:"N3",type:"な형" },
+  { kanji:"素敵",reading:"すてき",meaning:"멋지다",level:"N3",type:"な형" },
+  { kanji:"適切",reading:"てきせつ",meaning:"적절하다",level:"N3",type:"な형" },
+  { kanji:"当然",reading:"とうぜん",meaning:"당연하다",level:"N3",type:"な형" },
+  { kanji:"平和",reading:"へいわ",meaning:"평화롭다",level:"N3",type:"な형" },
+  { kanji:"豊か",reading:"ゆたか",meaning:"풍요롭다",level:"N3",type:"な형" },
+  { kanji:"余裕",reading:"よゆう",meaning:"여유롭다",level:"N3",type:"な형" },
+  { kanji:"楽",reading:"らく",meaning:"편하다/즐겁다",level:"N3",type:"な형" },
+  { kanji:"わがまま",reading:"わがまま",meaning:"제멋대로다",level:"N3",type:"な형" },
+  { kanji:"熱心",reading:"ねっしん",meaning:"열심이다",level:"N3",type:"な형" },
+  { kanji:"不安",reading:"ふあん",meaning:"불안하다",level:"N3",type:"な형" },
+  { kanji:"細かい",reading:"こまかい",meaning:"세세하다/잘다",level:"N3",type:"な형" },
+  { kanji:"強引",reading:"ごういん",meaning:"강압적이다",level:"N3",type:"な형" },
+];
+
+const LEVELS = ["전체","N5","N4","N3"];
+const TYPES = ["전체","동사","い형","な형"];
+const TYPE_COLOR = { 동사:"#3b82f6", "い형":"#10b981", "な형":"#f59e0b" };
+const LEVEL_COLOR = { N5:"#6366f1", N4:"#ec4899", N3:"#ef4444" };
+
+function Badge({ label, color }) {
+  return (
+    <span style={{
+      background: color + "22", color, border: `1px solid ${color}44`,
+      borderRadius:6, padding:"2px 8px", fontSize:11, fontWeight:700,
+      letterSpacing:"0.03em", whiteSpace:"nowrap",
+    }}>{label}</span>
+  );
+}
+
+function FlashCard({ word, onNext, total, current }) {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:24 }}>
+      <div style={{ color:"#64748b", fontSize:13 }}>{current + 1} / {total}</div>
+      <div onClick={() => setFlipped(f => !f)} style={{
+        width:"min(360px, 88vw)", minHeight:200, borderRadius:20,
+        background: flipped ? "#1e293b" : "#f8fafc",
+        border: `2px solid ${flipped ? "#334155" : "#e2e8f0"}`,
+        display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+        cursor:"pointer", transition:"all 0.2s", padding:32, gap:16, boxSizing:"border-box",
+        boxShadow:"0 4px 24px #0001",
+      }}>
+        {!flipped ? (
+          <>
+            <div style={{ fontSize:52, fontWeight:800, color:"#0f172a", letterSpacing:"-2px" }}>{word.kanji}</div>
+            <div style={{ fontSize:13, color:"#94a3b8" }}>탭해서 뒤집기 👆</div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize:30, color:"#94a3b8", letterSpacing:"0.1em" }}>{word.reading}</div>
+            <div style={{ fontSize:20, color:"#f1f5f9", fontWeight:700 }}>{word.meaning}</div>
+            <div style={{ display:"flex", gap:8, marginTop:4 }}>
+              <Badge label={word.level} color={LEVEL_COLOR[word.level]} />
+              <Badge label={word.type} color={TYPE_COLOR[word.type]} />
+            </div>
+          </>
+        )}
+      </div>
+      <button onClick={() => { setFlipped(false); onNext(); }} style={{
+        padding:"10px 32px", borderRadius:12, border:"none",
+        background:"#3b82f6", color:"#fff", fontWeight:700, fontSize:15, cursor:"pointer",
+      }}>다음 →</button>
+    </div>
+  );
+}
+
+function App() {
+  const [level, setLevel] = useState("전체");
+  const [type, setType] = useState("전체");
+  const [search, setSearch] = useState("");
+  const [mode, setMode] = useState("list");
+  const [flashIdx, setFlashIdx] = useState(0);
+  const [flashWords, setFlashWords] = useState([]);
+
+  const filtered = useMemo(() => {
+    let d = vocabData;
+    if (level !== "전체") d = d.filter(w => w.level === level);
+    if (type !== "전체") d = d.filter(w => w.type === type);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      d = d.filter(w => w.kanji.includes(q) || w.reading.includes(q) || w.meaning.includes(q));
+    }
+    return d;
+  }, [level, type, search]);
+
+  const counts = useMemo(() => {
+    const c = { N5:0, N4:0, N3:0, 동사:0, "い형":0, "な형":0 };
+    filtered.forEach(w => { c[w.level]++; c[w.type]++; });
+    return c;
+  }, [filtered]);
+
+  const startFlash = () => {
+    const arr = [...filtered].sort(() => Math.random() - 0.5);
+    setFlashWords(arr);
+    setFlashIdx(0);
+    setMode("flash");
+  };
+
+  const currentWord = flashWords[flashIdx % Math.max(flashWords.length, 1)];
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#f1f5f9", fontFamily:"'Noto Sans KR','Noto Sans JP',sans-serif", paddingBottom:48 }}>
+      {/* Header */}
+      <div style={{ background:"linear-gradient(135deg,#1e293b 0%,#0f172a 100%)", padding:"28px 20px 24px", color:"#fff" }}>
+        <div style={{ maxWidth:720, margin:"0 auto" }}>
+          <div style={{ fontSize:11, letterSpacing:"0.2em", color:"#64748b", marginBottom:6 }}>JLPT 단어장</div>
+          <div style={{ fontSize:22, fontWeight:800, color:"#f1f5f9" }}>N5~N3 훈독 완전 정복 📖</div>
+          <div style={{ fontSize:13, color:"#94a3b8", marginTop:6 }}>총 {vocabData.length}개 · 동사 / い형용사 / な형용사</div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth:720, margin:"0 auto", padding:"20px 16px 0" }}>
+        {/* Mode Buttons */}
+        <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+          <button onClick={() => setMode("list")} style={{
+            padding:"8px 20px", borderRadius:10, border:"none", fontWeight:700, fontSize:13, cursor:"pointer",
+            background: mode==="list" ? "#1e293b" : "#e2e8f0", color: mode==="list" ? "#fff" : "#475569",
+          }}>📋 목록 보기</button>
+          <button onClick={startFlash} style={{
+            padding:"8px 20px", borderRadius:10, border:"none", fontWeight:700, fontSize:13, cursor:"pointer",
+            background: mode==="flash" ? "#1e293b" : "#e2e8f0", color: mode==="flash" ? "#fff" : "#475569",
+          }}>🃏 플래시카드</button>
+        </div>
+
+        {/* Filters */}
+        <div style={{ background:"#fff", borderRadius:16, padding:16, marginBottom:16, boxShadow:"0 1px 8px #0001" }}>
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="한자·읽기·뜻 검색..." style={{
+              width:"100%", padding:"10px 14px", borderRadius:10, border:"1.5px solid #e2e8f0",
+              fontSize:14, outline:"none", boxSizing:"border-box", marginBottom:12, fontFamily:"inherit",
+            }} />
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:8 }}>
+            {LEVELS.map(l => (
+              <button key={l} onClick={() => setLevel(l)} style={{
+                padding:"5px 14px", borderRadius:8, border:"none", fontWeight:700, fontSize:12, cursor:"pointer",
+                background: level===l ? (l==="전체" ? "#1e293b" : LEVEL_COLOR[l]) : "#f1f5f9",
+                color: level===l ? "#fff" : "#64748b",
+              }}>{l}</button>
+            ))}
+          </div>
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+            {TYPES.map(t => (
+              <button key={t} onClick={() => setType(t)} style={{
+                padding:"5px 14px", borderRadius:8, border:"none", fontWeight:700, fontSize:12, cursor:"pointer",
+                background: type===t ? (t==="전체" ? "#1e293b" : TYPE_COLOR[t]) : "#f1f5f9",
+                color: type===t ? "#fff" : "#64748b",
+              }}>{t}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:16 }}>
+          {[
+            { label:"표시", val:filtered.length, color:"#1e293b" },
+            { label:"N5", val:counts.N5, color:LEVEL_COLOR.N5 },
+            { label:"N4", val:counts.N4, color:LEVEL_COLOR.N4 },
+            { label:"N3", val:counts.N3, color:LEVEL_COLOR.N3 },
+            { label:"동사", val:counts.동사, color:TYPE_COLOR.동사 },
+            { label:"い형", val:counts["い형"], color:TYPE_COLOR["い형"] },
+            { label:"な형", val:counts["な형"], color:TYPE_COLOR["な형"] },
+          ].map(s => (
+            <div key={s.label} style={{
+              background:s.color+"11", border:`1px solid ${s.color}33`,
+              borderRadius:8, padding:"4px 12px", fontSize:12, color:s.color, fontWeight:700,
+            }}>{s.label} <strong>{s.val}</strong></div>
+          ))}
+        </div>
+
+        {/* Content */}
+        {mode === "flash" ? (
+          flashWords.length > 0 ? (
+            <div style={{ background:"#fff", borderRadius:20, padding:"32px 20px",
+              boxShadow:"0 1px 8px #0001", display:"flex", flexDirection:"column", alignItems:"center" }}>
+              <FlashCard word={currentWord} total={flashWords.length}
+                current={flashIdx % flashWords.length} onNext={() => setFlashIdx(i => i+1)} />
+            </div>
+          ) : (
+            <div style={{ textAlign:"center", color:"#94a3b8", padding:48 }}>검색 결과가 없습니다</div>
+          )
+        ) : (
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {filtered.length === 0 && <div style={{ textAlign:"center", color:"#94a3b8", padding:48 }}>검색 결과가 없습니다</div>}
+            {filtered.map((w, i) => (
+              <div key={i} style={{
+                background:"#fff", borderRadius:14, padding:"14px 16px",
+                boxShadow:"0 1px 4px #0001", display:"flex", alignItems:"center", gap:12,
+              }}>
+                <div style={{ fontSize:28, fontWeight:800, color:"#0f172a", minWidth:80, letterSpacing:"-1px", lineHeight:1 }}>
+                  {w.kanji}
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:15, color:"#475569", letterSpacing:"0.05em", marginBottom:2 }}>{w.reading}</div>
+                  <div style={{ fontSize:14, color:"#0f172a", fontWeight:600 }}>{w.meaning}</div>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:4, alignItems:"flex-end" }}>
+                  <Badge label={w.level} color={LEVEL_COLOR[w.level]} />
+                  <Badge label={w.type} color={TYPE_COLOR[w.type]} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
