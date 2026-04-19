@@ -710,8 +710,6 @@ function App() {
     try { return new Set(JSON.parse(localStorage.getItem('hundok-bm') || '[]')); }
     catch { return new Set(); }
   });
-  const [weakOnly, setWeakOnly] = useState(false);
-
   const toggleBM = (kanji) => {
     setBookmarks(prev => {
       const next = new Set(prev);
@@ -742,8 +740,8 @@ function App() {
   }, [levels, type, search]);
 
   const displayed = useMemo(() =>
-    weakOnly ? filtered.filter(w => bookmarks.has(w.kanji)) : filtered
-  , [filtered, weakOnly, bookmarks]);
+    mode === "weak" ? filtered.filter(w => bookmarks.has(w.kanji)) : filtered
+  , [filtered, mode, bookmarks]);
 
   const counts = useMemo(() => {
     const c = { N5:0, N4:0, N3:0, 동사:0, "い형":0, "な형":0 };
@@ -793,9 +791,9 @@ function App() {
             padding:"8px 20px", borderRadius:10, border:"none", fontWeight:700, fontSize:13, cursor:"pointer",
             background: mode==="flash" ? "#1e293b" : "#e2e8f0", color: mode==="flash" ? "#fff" : "#475569",
           }}>🃏 플래시카드</button>
-          <button onClick={() => { setWeakOnly(w => !w); setMode("list"); }} style={{
+          <button onClick={() => setMode("weak")} style={{
             padding:"8px 20px", borderRadius:10, border:"none", fontWeight:700, fontSize:13, cursor:"pointer",
-            background: weakOnly ? "#ef4444" : "#e2e8f0", color: weakOnly ? "#fff" : "#475569",
+            background: mode==="weak" ? "#ef4444" : "#e2e8f0", color: mode==="weak" ? "#fff" : "#475569",
           }}>❌ 못외운 단어 {bookmarks.size > 0 && `(${bookmarks.size})`}</button>
         </div>
 
