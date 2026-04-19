@@ -603,6 +603,49 @@ const TYPES = ["전체","동사","い형","な형"];
 const TYPE_COLOR = { 동사:"#3b82f6", "い형":"#10b981", "な형":"#f59e0b" };
 const LEVEL_COLOR = { N5:"#6366f1", N4:"#ec4899", N3:"#ef4444" };
 
+// 자동사/타동사 분류 (동사만)
+const VTYPE = {
+  // N5
+  "開く":"자동사","開ける":"타동사","閉まる":"자동사","閉める":"타동사",
+  "止まる":"자동사","止める":"타동사","直る":"자동사","直す":"타동사",
+  "始まる":"자동사","始める":"타동사","落ちる":"자동사","落とす":"타동사",
+  "消える":"자동사","消す":"타동사","変わる":"자동사","変える":"타동사",
+  "起きる":"자동사","起こす":"타동사","集める":"타동사",
+  // N4
+  "集まる":"자동사","決まる":"자동사","決める":"타동사",
+  "壊れる":"자동사","壊す":"타동사","続く":"자동사","続ける":"타동사",
+  "届く":"자동사","届ける":"타동사","並ぶ":"자동사","並べる":"타동사",
+  "残る":"자동사","残す":"타동사","増える":"자동사","増やす":"타동사",
+  "見える":"자동사","見せる":"타동사","見つかる":"자동사","見つける":"타동사",
+  "戻る":"자동사","戻す":"타동사","割れる":"자동사","割る":"타동사",
+  "汚れる":"자동사","汚す":"타동사","冷える":"자동사","冷やす":"타동사",
+  "温まる":"자동사","温める":"타동사","育つ":"자동사","育てる":"타동사",
+  // N3
+  "表れる":"자동사","表す":"타동사","移る":"자동사","移す":"타동사",
+  "重なる":"자동사","重ねる":"타동사","片付く":"자동사","片付ける":"타동사",
+  "乾く":"자동사","乾かす":"타동사","縮む":"자동사","縮める":"타동사",
+  "進む":"자동사","進める":"타동사","済む":"자동사","済ます":"타동사",
+  "積む":"타동사","積もる":"자동사","伝える":"타동사","伝わる":"자동사",
+  "通る":"자동사","通す":"타동사","解く":"타동사","解ける":"자동사",
+  "溶ける":"자동사","溶かす":"타동사","流れる":"자동사","流す":"타동사",
+  "混じる":"자동사","混ぜる":"타동사","向かう":"자동사","向ける":"타동사",
+  "破る":"타동사","破れる":"자동사","沸く":"자동사","沸かす":"타동사",
+  "折れる":"자동사","折る":"타동사","倒れる":"자동사","冷める":"자동사",
+  "溢れる":"자동사","枯れる":"자동사","伸びる":"자동사","延ばす":"타동사",
+  "広まる":"자동사","深まる":"자동사","燃える":"자동사","現れる":"자동사",
+  "遅れる":"자동사","隠れる":"자동사","溺れる":"자동사","溜まる":"자동사",
+  "落ち着く":"자동사","関わる":"자동사","叶う":"자동사","聞こえる":"자동사",
+  "知らせる":"타동사","隠す":"타동사","示す":"타동사","回す":"타동사",
+  "配る":"타동사","叱る":"타동사","握る":"타동사","替える":"타동사",
+  "換える":"타동사","述べる":"타동사","辞める":"타동사","合わせる":"타동사",
+  "畳む":"타동사","貯める":"타동사","詰める":"타동사","飛ばす":"타동사",
+  "取り消す":"타동사","取り出す":"타동사","守る":"타동사","雇う":"타동사",
+  "分ける":"타동사","建てる":"타동사","注ぐ":"타동사","信じる":"타동사",
+  "焼く":"타동사","慰める":"타동사","植える":"타동사","受け入れる":"타동사",
+  "埋める":"타동사","稼ぐ":"타동사","褒める":"타동사","区切る":"타동사",
+  "気付く":"자동사","追いつく":"자동사","追い抜く":"타동사","響く":"자동사",
+};
+
 function Badge({ label, color }) {
   return (
     <span style={{
@@ -613,8 +656,9 @@ function Badge({ label, color }) {
   );
 }
 
-function FlashCard({ word, onNext, total, current }) {
+function FlashCard({ word, onNext, total, current, isBookmarked, onToggleBM }) {
   const [flipped, setFlipped] = useState(false);
+  const vtype = word.type === "동사" ? VTYPE[word.kanji] : null;
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:24 }}>
       <div style={{ color:"#64748b", fontSize:13 }}>{current + 1} / {total}</div>
@@ -624,8 +668,12 @@ function FlashCard({ word, onNext, total, current }) {
         border: `2px solid ${flipped ? "#334155" : "#e2e8f0"}`,
         display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
         cursor:"pointer", transition:"all 0.2s", padding:32, gap:16, boxSizing:"border-box",
-        boxShadow:"0 4px 24px #0001",
+        boxShadow:"0 4px 24px #0001", position:"relative",
       }}>
+        <button onClick={e => { e.stopPropagation(); onToggleBM(word.kanji); }} style={{
+          position:"absolute", top:12, right:12, background:"none", border:"none",
+          fontSize:22, cursor:"pointer", opacity: isBookmarked ? 1 : 0.3,
+        }}>❌</button>
         {!flipped ? (
           <>
             <div style={{ fontSize:52, fontWeight:800, color:"#0f172a", letterSpacing:"-2px" }}>{word.kanji}</div>
@@ -635,9 +683,10 @@ function FlashCard({ word, onNext, total, current }) {
           <>
             <div style={{ fontSize:30, color:"#94a3b8", letterSpacing:"0.1em" }}>{word.reading}</div>
             <div style={{ fontSize:20, color:"#f1f5f9", fontWeight:700 }}>{word.meaning}</div>
-            <div style={{ display:"flex", gap:8, marginTop:4 }}>
+            <div style={{ display:"flex", gap:8, marginTop:4, flexWrap:"wrap", justifyContent:"center" }}>
               <Badge label={word.level} color={LEVEL_COLOR[word.level]} />
               <Badge label={word.type} color={TYPE_COLOR[word.type]} />
+              {vtype && <Badge label={vtype} color={vtype==="자동사"?"#06b6d4":"#f97316"} />}
             </div>
           </>
         )}
@@ -657,6 +706,20 @@ function App() {
   const [mode, setMode] = useState("list");
   const [flashIdx, setFlashIdx] = useState(0);
   const [flashWords, setFlashWords] = useState([]);
+  const [bookmarks, setBookmarks] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('hundok-bm') || '[]')); }
+    catch { return new Set(); }
+  });
+  const [weakOnly, setWeakOnly] = useState(false);
+
+  const toggleBM = (kanji) => {
+    setBookmarks(prev => {
+      const next = new Set(prev);
+      next.has(kanji) ? next.delete(kanji) : next.add(kanji);
+      localStorage.setItem('hundok-bm', JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const toggleLevel = (l) => {
     if (l === "전체") { setLevels(new Set()); return; }
@@ -678,17 +741,21 @@ function App() {
     return d;
   }, [levels, type, search]);
 
+  const displayed = useMemo(() =>
+    weakOnly ? filtered.filter(w => bookmarks.has(w.kanji)) : filtered
+  , [filtered, weakOnly, bookmarks]);
+
   const counts = useMemo(() => {
     const c = { N5:0, N4:0, N3:0, 동사:0, "い형":0, "な형":0 };
-    filtered.forEach(w => { c[w.level]++; c[w.type]++; });
+    displayed.forEach(w => { c[w.level]++; c[w.type]++; });
     return c;
-  }, [filtered]);
+  }, [displayed]);
 
   const modeRef = useRef(mode);
   useEffect(() => { modeRef.current = mode; }, [mode]);
 
   const startFlash = () => {
-    const arr = [...filtered].sort(() => Math.random() - 0.5);
+    const arr = [...displayed].sort(() => Math.random() - 0.5);
     setFlashWords(arr);
     setFlashIdx(0);
     setMode("flash");
@@ -696,11 +763,11 @@ function App() {
 
   useEffect(() => {
     if (modeRef.current === "flash") {
-      const arr = [...filtered].sort(() => Math.random() - 0.5);
+      const arr = [...displayed].sort(() => Math.random() - 0.5);
       setFlashWords(arr);
       setFlashIdx(0);
     }
-  }, [filtered]);
+  }, [displayed]);
 
   const currentWord = flashWords[flashIdx % Math.max(flashWords.length, 1)];
 
@@ -717,7 +784,7 @@ function App() {
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:"20px 16px 0" }}>
         {/* Mode Buttons */}
-        <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+        <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
           <button onClick={() => setMode("list")} style={{
             padding:"8px 20px", borderRadius:10, border:"none", fontWeight:700, fontSize:13, cursor:"pointer",
             background: mode==="list" ? "#1e293b" : "#e2e8f0", color: mode==="list" ? "#fff" : "#475569",
@@ -726,6 +793,10 @@ function App() {
             padding:"8px 20px", borderRadius:10, border:"none", fontWeight:700, fontSize:13, cursor:"pointer",
             background: mode==="flash" ? "#1e293b" : "#e2e8f0", color: mode==="flash" ? "#fff" : "#475569",
           }}>🃏 플래시카드</button>
+          <button onClick={() => { setWeakOnly(w => !w); setMode("list"); }} style={{
+            padding:"8px 20px", borderRadius:10, border:"none", fontWeight:700, fontSize:13, cursor:"pointer",
+            background: weakOnly ? "#ef4444" : "#e2e8f0", color: weakOnly ? "#fff" : "#475569",
+          }}>❌ 못외운 단어 {bookmarks.size > 0 && `(${bookmarks.size})`}</button>
         </div>
 
         {/* Filters */}
@@ -783,32 +854,43 @@ function App() {
             <div style={{ background:"#fff", borderRadius:20, padding:"32px 20px",
               boxShadow:"0 1px 8px #0001", display:"flex", flexDirection:"column", alignItems:"center" }}>
               <FlashCard word={currentWord} total={flashWords.length}
-                current={flashIdx % flashWords.length} onNext={() => setFlashIdx(i => i+1)} />
+                current={flashIdx % flashWords.length} onNext={() => setFlashIdx(i => i+1)}
+                isBookmarked={bookmarks.has(currentWord?.kanji)} onToggleBM={toggleBM} />
             </div>
           ) : (
             <div style={{ textAlign:"center", color:"#94a3b8", padding:48 }}>검색 결과가 없습니다</div>
           )
         ) : (
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {filtered.length === 0 && <div style={{ textAlign:"center", color:"#94a3b8", padding:48 }}>검색 결과가 없습니다</div>}
-            {filtered.map((w, i) => (
-              <div key={i} style={{
-                background:"#fff", borderRadius:14, padding:"14px 16px",
-                boxShadow:"0 1px 4px #0001", display:"flex", alignItems:"center", gap:12,
-              }}>
-                <div style={{ fontSize:28, fontWeight:800, color:"#0f172a", minWidth:80, letterSpacing:"-1px", lineHeight:1 }}>
-                  {w.kanji}
+            {displayed.length === 0 && <div style={{ textAlign:"center", color:"#94a3b8", padding:48 }}>{weakOnly ? "못외운 단어가 없습니다 👏" : "검색 결과가 없습니다"}</div>}
+            {displayed.map((w, i) => {
+              const vtype = w.type === "동사" ? VTYPE[w.kanji] : null;
+              const bm = bookmarks.has(w.kanji);
+              return (
+                <div key={i} style={{
+                  background:"#fff", borderRadius:14, padding:"14px 16px",
+                  boxShadow:"0 1px 4px #0001", display:"flex", alignItems:"center", gap:12,
+                  borderLeft: bm ? "3px solid #ef4444" : "3px solid transparent",
+                }}>
+                  <div style={{ fontSize:28, fontWeight:800, color:"#0f172a", minWidth:80, letterSpacing:"-1px", lineHeight:1 }}>
+                    {w.kanji}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:15, color:"#475569", letterSpacing:"0.05em", marginBottom:2 }}>{w.reading}</div>
+                    <div style={{ fontSize:14, color:"#0f172a", fontWeight:600 }}>{w.meaning}</div>
+                  </div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:4, alignItems:"flex-end" }}>
+                    <Badge label={w.level} color={LEVEL_COLOR[w.level]} />
+                    <Badge label={w.type} color={TYPE_COLOR[w.type]} />
+                    {vtype && <Badge label={vtype} color={vtype==="자동사"?"#06b6d4":"#f97316"} />}
+                  </div>
+                  <button onClick={() => toggleBM(w.kanji)} style={{
+                    background:"none", border:"none", fontSize:18, cursor:"pointer",
+                    opacity: bm ? 1 : 0.2, padding:"4px", flexShrink:0,
+                  }}>❌</button>
                 </div>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:15, color:"#475569", letterSpacing:"0.05em", marginBottom:2 }}>{w.reading}</div>
-                  <div style={{ fontSize:14, color:"#0f172a", fontWeight:600 }}>{w.meaning}</div>
-                </div>
-                <div style={{ display:"flex", flexDirection:"column", gap:4, alignItems:"flex-end" }}>
-                  <Badge label={w.level} color={LEVEL_COLOR[w.level]} />
-                  <Badge label={w.type} color={TYPE_COLOR[w.type]} />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
